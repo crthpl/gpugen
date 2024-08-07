@@ -16,16 +16,16 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.example.ExampleMod"
+			"com.crthpl.gpugen.GpuGen"
 		],
 		"client": [
-			"com.example.ExampleModClient"
+			"com.crthpl.gpugen.ExampleModClient"
 		]
 	},
 	"mixins": [
-		"modid.mixins.json",
+		"gpugen.mixins.json",
 		{
-			"config": "modid.client.mixins.json",
+			"config": "gpugen.client.mixins.json",
 			"environment": "client"
 		}
 	],

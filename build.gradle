@@ -1,4 +1,8 @@
 plugins {
+	id("io.github.krakowski.jextract") version "0.5.0"
+//	id 'org.ysb33r.rust.exe'  version '0.2'
+	id("fr.stardustenterprises.rust.importer") version "2.1.0"
+
 	id 'fabric-loom' version '1.7-SNAPSHOT'
 	id 'maven-publish'
 }
@@ -20,15 +24,47 @@ repositories {
 
 loom {
 	splitEnvironmentSourceSets()
-
+	accessWidenerPath = file("src/main/resources/gpugen.accesswidener")
 	mods {
-		"modid" {
+		"gpugen" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
 	}
 
+	runs {
+		client { // add preview
+			vmArgs "--enable-preview"
+			vmArgs "--enable-native-access=ALL-UNNAMED"
+			vmArgs "-Djava.library.path=../rust/target/debug"
+			vmArgs "-Dorg.lwjgl.glfw.libname=/usr/lib/libglfw.so"
+			environmentVariable("__GL_THREADED_OPTIMIZATIONS", "0")
+		}
+	}
 }
+
+sourceSets {
+	main {
+		java {
+			srcDir "src/generated"
+		}
+	}
+}
+
+//tasks.register<JavaExec>("generate") {
+//	executable = file(System.getProperty("user.home")).resolve("source/jextract/build/jextract/bin/java").absolutePath
+//	mainModule = "org.openjdk.jextract/org.openjdk.jextract.JextractTool"
+//	args = listOf(
+//			layout.projectDirectory.file("rust/lib.h").toString(),
+//			// "--dump-includes", "${layout.projectDirectory.file("lib.full.symbols")}",
+//			//"@${layout.projectDirectory.file("lib.symbols")}",
+//			"--source",
+//			"--target-package", "lib",
+//			"-l", "rust",
+//			"--output", layout.projectDirectory.dir("src/generated/java/").toString(),
+//	)
+//	dependsOn(deleteGeneratedSources)
+//}
 
 dependencies {
 	// To change the versions see the gradle.properties file
@@ -51,7 +87,10 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
+	// add preview
+	it.options.compilerArgs.add("--enable-preview")
 }
+
 
 java {
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
